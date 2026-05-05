@@ -1050,7 +1050,7 @@ function renderBookingModal(){
               ${bookingForm.slipFileName ? `<small class="status-ok">แนบสลิปแล้ว: ${bookingForm.slipFileName}</small>` : `<small class="muted">รองรับไฟล์รูปภาพ เช่น JPG, PNG</small>`}
             </div>
             <label style="display:flex;gap:8px;margin:12px 0"><input type="checkbox" onchange="updateBookingField('accept',this.checked)"> ยอมรับเงื่อนไขการจอง</label>
-            <div style="display:flex;gap:10px"><button class="secondary" onclick="bookingStep=2;render()">ย้อนกลับ</button><button class="primary" style="flex:1" onclick="submitBooking()">ยืนยันการจอง</button></div>
+            <div style="display:flex;gap:10px"><button class="secondary" onclick="bookingStep=2;render()">ย้อนกลับ</button><button id="confirmBookingBtn" class="primary" style="flex:1" onclick="submitBooking()">ยืนยันการจอง</button></div>
           ` : ""}
         </div>
       </div>
