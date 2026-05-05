@@ -2129,53 +2129,113 @@ function renderManualBookingModal(){
 }
 
 async function submitManualBooking(){
-  if(!can(["Owner","Admin","Staff"])) return alert(adminLabel("noPermission"));
-  if(!manualBookingForm.guest || !manualBookingForm.phone){ alert("กรุณากรอกชื่อลูกค้าและเบอร์โทร"); return; }
-  if(!manualBookingForm.roomId || !manualBookingForm.checkIn || !manualBookingForm.checkOut){ alert("กรุณาเลือกห้องและวันที่เข้าพัก"); return; }
-  if(!validateBookingDateTime(manualBookingForm.checkIn, manualBookingForm.checkOut, manualBookingForm.checkInTime, manualBookingForm.checkOutTime)) return;
-  if(!isApiReady()){ alert("ยังไม่ได้ตั้งค่า API_URL ของ Google Apps Script"); return; }
-  const room = getManualBookingRoom();
-  const paymentNote = `[Manual Booking][Payment: ${manualBookingForm.paymentStatus}]`;
-  const booking = {
-    guest:manualBookingForm.guest || "",
-    phone:manualBookingForm.phone || "",
-    email:manualBookingForm.email || "",
-    lineId:manualBookingForm.lineId || "",
-    lineUserId:manualBookingForm.lineUserId || "",
-    roomId:room.id,
-    roomType:room.type,
-    room:room.name,
-    checkIn:manualBookingForm.checkIn,
-    checkOut:manualBookingForm.checkOut,
-    checkInTime:policyCheckInTime(),
-    checkOutTime:policyCheckOutTime(),
-    adults:Number(manualBookingForm.adults || 1),
-    children:Number(manualBookingForm.children || 0),
-    addOns:manualBookingForm.addOns || [],
-    total:getManualBookingTotal(),
-    status:manualBookingForm.status || "Pending",
-    slip:!!manualBookingForm.slipBase64,
-    slipFileName:manualBookingForm.slipFileName || "",
-    slipMimeType:manualBookingForm.slipMimeType || "image/jpeg",
-    slipBase64:manualBookingForm.slipBase64 || "",
-    channel:manualBookingForm.channel || "Phone",
-    note:(paymentNote + " " + (manualBookingForm.note || "")).trim(),
-    createdBy:adminUser ? adminUser.username : "admin"
-  };
-  const result = await api("createManualBooking", booking);
-  if(!result || result.success === false){
-    alert((result && result.message) || "บันทึกการจองไม่สำเร็จ");
-    return;
-  }
-  const savedBooking = result.booking || (result.data && result.data.booking) || { ...booking, id: result.bookingId || ("BK"+Date.now().toString().slice(-8)) };
-  state.bookings.unshift(savedBooking);
-  saveState();
-  log("Manual Booking", savedBooking.id + " · " + savedBooking.guest);
-  manualBookingOpen = false;
-  alert("บันทึกการจองสำเร็จ เลขที่: " + savedBooking.id);
-  setAdminTab("bookings");
-}
+  if(window._manualBookingLock) return;
+  window._manualBookingLock = true;
 
+  const btn = document.getElementById("manualBookingSaveBtn");
+  if(btn){
+    btn.disabled = true;
+    btn.innerText = "กำลังบันทึกการจอง...";
+    btn.style.opacity = "0.65";
+    btn.style.cursor = "not-allowed";
+  }
+
+  try{
+    if(!can(["Owner","Admin","Staff"])){
+      alert(adminLabel("noPermission"));
+      throw new Error("no permission");
+    }
+
+    if(!manualBookingForm.guest || !manualBookingForm.guest.trim() || !manualBookingForm.phone || !manualBookingForm.phone.trim()){
+      alert("กรุณากรอกชื่อลูกค้าและเบอร์โทร");
+      throw new Error("missing guest or phone");
+    }
+
+    if(!manualBookingForm.roomId || !manualBookingForm.checkIn || !manualBookingForm.checkOut){
+      alert("กรุณาเลือกห้องและวันที่เข้าพัก");
+      throw new Error("missing room or date");
+    }
+
+    if(!validateBookingDateTime(
+      manualBookingForm.checkIn,
+      manualBookingForm.checkOut,
+      manualBookingForm.checkInTime,
+      manualBookingForm.checkOutTime
+    )){
+      throw new Error("invalid datetime");
+    }
+
+    if(!isApiReady()){
+      alert("ยังไม่ได้ตั้งค่า API_URL ของ Google Apps Script");
+      throw new Error("api not ready");
+    }
+
+    const room = getManualBookingRoom();
+    const paymentNote = `[Manual Booking][Payment: ${manualBookingForm.paymentStatus}]`;
+
+    const booking = {
+      guest: manualBookingForm.guest || "",
+      phone: manualBookingForm.phone || "",
+      email: manualBookingForm.email || "",
+      lineId: manualBookingForm.lineId || "",
+      lineUserId: manualBookingForm.lineUserId || "",
+      roomId: room.id,
+      roomType: room.type,
+      room: room.name,
+      checkIn: manualBookingForm.checkIn,
+      checkOut: manualBookingForm.checkOut,
+      checkInTime: policyCheckInTime(),
+      checkOutTime: policyCheckOutTime(),
+      adults: Number(manualBookingForm.adults || 1),
+      children: Number(manualBookingForm.children || 0),
+      addOns: manualBookingForm.addOns || [],
+      total: getManualBookingTotal(),
+      status: manualBookingForm.status || "Pending",
+      slip: !!manualBookingForm.slipBase64,
+      slipFileName: manualBookingForm.slipFileName || "",
+      slipMimeType: manualBookingForm.slipMimeType || "image/jpeg",
+      slipBase64: manualBookingForm.slipBase64 || "",
+      channel: manualBookingForm.channel || "Phone",
+      note: (paymentNote + " " + (manualBookingForm.note || "")).trim(),
+      createdBy: adminUser ? adminUser.username : "admin"
+    };
+
+    const result = await api("createManualBooking", booking);
+
+    if(!result || result.success === false){
+      alert((result && result.message) || "บันทึกการจองไม่สำเร็จ");
+      throw new Error("api failed");
+    }
+
+    const savedBooking =
+      result.booking ||
+      (result.data && result.data.booking) ||
+      {
+        ...booking,
+        id: result.bookingId || ("BK" + Date.now().toString().slice(-8))
+      };
+
+    state.bookings.unshift(savedBooking);
+    saveState();
+    log("Manual Booking", savedBooking.id + " · " + savedBooking.guest);
+
+    manualBookingOpen = false;
+    alert("บันทึกการจองสำเร็จ เลขที่: " + savedBooking.id);
+    setAdminTab("bookings");
+
+  }catch(err){
+    console.error("Manual booking error:", err);
+  }
+
+  window._manualBookingLock = false;
+
+  if(btn){
+    btn.disabled = false;
+    btn.innerText = "บันทึกการจอง / Save Booking";
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+  }
+}
 /* Override Bookings Admin tab: add Manual Booking button and modal */
 function renderBookingsAdmin(){
   return `
