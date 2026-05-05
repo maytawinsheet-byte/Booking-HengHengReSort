@@ -860,59 +860,117 @@ function toggleBookingAddOn(id){
   render();
 }
 async function submitBooking(){
-  if(!isApiReady()){
-    alert("ยังไม่ได้ตั้งค่า API_URL ของ Google Apps Script");
-    return;
-  }
-  if(!validateBookingDateTime(bookingForm.checkIn, bookingForm.checkOut, bookingForm.checkInTime, bookingForm.checkOutTime)) return;
-  if(!bookingForm.accept){ alert("กรุณายอมรับเงื่อนไขการจอง"); return; }
-  if(!bookingForm.slipBase64){ alert("กรุณาแนบสลิปโอนเงินก่อนยืนยันการจอง"); return; }
-  const room = bookingModalRoom;
-  const addOnTotal = (bookingForm.addOns||[]).reduce((sum,id)=>{
-    const a=state.addOns.find(x=>x.id===id); return sum + Number(a?.price||0);
-  },0);
-  const total = Number(room.price) * nights(bookingForm.checkIn, bookingForm.checkOut) + addOnTotal;
+  // 🔒 กันกดรัว
+  if(window._bookingLock) return;
+  window._bookingLock = true;
 
-  const booking = {
-    guest:bookingForm.guest||"",
-    phone:bookingForm.phone||"",
-    email:bookingForm.email||"",
-    lineId:bookingForm.lineId||"",
-    lineUserId:bookingForm.lineUserId || "",
-    roomId:room.id,
-    roomType:room.type,
-    room:room.name,
-    checkIn:bookingForm.checkIn,
-    checkOut:bookingForm.checkOut,
-    checkInTime:policyCheckInTime(),
-    checkOutTime:policyCheckOutTime(),
-    adults:Number(bookingForm.adults||1),
-    children:Number(bookingForm.children||0),
-    addOns:bookingForm.addOns||[],
-    total,
-    status:"Pending",
-    slip:true,
-    slipFileName:bookingForm.slipFileName || "slip.jpg",
-    slipMimeType:bookingForm.slipMimeType || "image/jpeg",
-    slipBase64:bookingForm.slipBase64 || "",
-    channel:"Website",
-    note:bookingForm.note||""
-  };
-
-  const result = await api("createBooking", booking);
-  if(!result || result.success === false){
-    alert((result && result.message) || "บันทึกการจองไม่สำเร็จ");
-    return;
+  const btn = document.getElementById("confirmBookingBtn");
+  if(btn){
+    btn.disabled = true;
+    btn.innerText = "กำลังบันทึกการจอง...";
+    btn.style.opacity = "0.65";
+    btn.style.cursor = "not-allowed";
   }
 
-  const savedBooking = result.booking || (result.data && result.data.booking) || { ...booking, id: result.bookingId || ("BK"+Date.now().toString().slice(-8)) };
-  state.bookings.unshift(savedBooking);
-  state.lastSuccess = savedBooking;
-  saveState();
-  log("Create Booking", savedBooking.id + " · " + savedBooking.guest);
-  bookingModalRoom = null;
-  view = "success";
-  render();
+  try{
+    if(!isApiReady()){
+      alert("ยังไม่ได้ตั้งค่า API_URL ของ Google Apps Script");
+      throw new Error("API not ready");
+    }
+
+    if(!validateBookingDateTime(
+      bookingForm.checkIn,
+      bookingForm.checkOut,
+      bookingForm.checkInTime,
+      bookingForm.checkOutTime
+    )) throw new Error("invalid datetime");
+
+    if(!bookingForm.accept){
+      alert("กรุณายอมรับเงื่อนไขการจอง");
+      throw new Error("not accepted");
+    }
+
+    if(!bookingForm.slipBase64){
+      alert("กรุณาแนบสลิปโอนเงินก่อนยืนยันการจอง");
+      throw new Error("no slip");
+    }
+
+    const room = bookingModalRoom;
+
+    const addOnTotal = (bookingForm.addOns || []).reduce((sum,id)=>{
+      const a = state.addOns.find(x => x.id === id);
+      return sum + Number(a?.price || 0);
+    },0);
+
+    const total =
+      Number(room.price) *
+      nights(bookingForm.checkIn, bookingForm.checkOut) +
+      addOnTotal;
+
+    const booking = {
+      guest: bookingForm.guest || "",
+      phone: bookingForm.phone || "",
+      email: bookingForm.email || "",
+      lineId: bookingForm.lineId || "",
+      lineUserId: bookingForm.lineUserId || "",
+      roomId: room.id,
+      roomType: room.type,
+      room: room.name,
+      checkIn: bookingForm.checkIn,
+      checkOut: bookingForm.checkOut,
+      checkInTime: policyCheckInTime(),
+      checkOutTime: policyCheckOutTime(),
+      adults: Number(bookingForm.adults || 1),
+      children: Number(bookingForm.children || 0),
+      addOns: bookingForm.addOns || [],
+      total,
+      status: "Pending",
+      slip: true,
+      slipFileName: bookingForm.slipFileName || "slip.jpg",
+      slipMimeType: bookingForm.slipMimeType || "image/jpeg",
+      slipBase64: bookingForm.slipBase64 || "",
+      channel: "Website",
+      note: bookingForm.note || ""
+    };
+
+    const result = await api("createBooking", booking);
+
+    if(!result || result.success === false){
+      alert((result && result.message) || "บันทึกการจองไม่สำเร็จ");
+      throw new Error("api failed");
+    }
+
+    const savedBooking =
+      result.booking ||
+      (result.data && result.data.booking) ||
+      {
+        ...booking,
+        id: result.bookingId || ("BK" + Date.now().toString().slice(-8))
+      };
+
+    state.bookings.unshift(savedBooking);
+    state.lastSuccess = savedBooking;
+    saveState();
+
+    log("Create Booking", savedBooking.id + " · " + savedBooking.guest);
+
+    bookingModalRoom = null;
+    view = "success";
+    render();
+
+  }catch(err){
+    console.error("Submit booking error:", err);
+  }
+
+  // 🔓 ปลดล็อก
+  window._bookingLock = false;
+
+  if(btn){
+    btn.disabled = false;
+    btn.innerText = "ยืนยันการจอง";
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+  }
 }
 
 function renderSuccess(){
