@@ -2054,7 +2054,7 @@ function updateManualBookingField(k,v){
   manualBookingForm[k] = v;
 
   if(k === "checkIn"){
-    manualBookingForm.checkOut = addDaysISO(manualBookingForm.checkIn, 1);
+    manualBookingForm.checkOut = addDaysISO(v, 1);
     render();
     return;
   }
@@ -2072,11 +2072,11 @@ function updateManualBookingField(k,v){
     manualBookingForm.checkOutTime = policyCheckOutTime();
   }
 
-  if(["roomId","checkIn","checkOut","adults","children"].includes(k)){
+  if(["roomId","adults","children"].includes(k)){
     render();
   }
 }
-
+  
 function toggleManualAddOn(id){
   manualBookingForm.addOns = manualBookingForm.addOns || [];
   manualBookingForm.addOns = manualBookingForm.addOns.includes(id)
