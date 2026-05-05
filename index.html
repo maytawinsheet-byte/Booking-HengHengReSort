@@ -2027,9 +2027,29 @@ function closeManualBooking(){
 
 function updateManualBookingField(k,v){
   manualBookingForm[k] = v;
-  if(k === "checkIn" || k === "checkOut") normalizeDateRange(manualBookingForm);
-  if(k === "checkInTime" || k === "checkOutTime") { manualBookingForm.checkInTime = policyCheckInTime(); manualBookingForm.checkOutTime = policyCheckOutTime(); }
-  if(["roomId","checkIn","checkOut","adults","children"].includes(k)) render();
+
+  if(k === "checkIn"){
+    manualBookingForm.checkOut = addDaysISO(manualBookingForm.checkIn, 1);
+    render();
+    return;
+  }
+
+  if(k === "checkOut"){
+    if(!manualBookingForm.checkOut || manualBookingForm.checkOut <= manualBookingForm.checkIn){
+      manualBookingForm.checkOut = addDaysISO(manualBookingForm.checkIn, 1);
+    }
+    render();
+    return;
+  }
+
+  if(k === "checkInTime" || k === "checkOutTime"){
+    manualBookingForm.checkInTime = policyCheckInTime();
+    manualBookingForm.checkOutTime = policyCheckOutTime();
+  }
+
+  if(["roomId","checkIn","checkOut","adults","children"].includes(k)){
+    render();
+  }
 }
 
 function toggleManualAddOn(id){
