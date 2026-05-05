@@ -304,7 +304,18 @@ let customerSearch = normalizeDateRange({ checkIn:todayISO(), checkOut:addDaysIS
 function setCustomerSearchMode(mode){ customerSearchMode = mode; normalizeDateRange(customerSearch); render(); }
 function updateSearchField(key,value){
   customerSearch[key] = value;
-  if(key === "checkIn" || key === "checkOut") normalizeDateRange(customerSearch);
+
+  if(key === "checkIn"){
+    customerSearch.checkOut = addDaysISO(value, 1);
+  }
+
+  if(key === "checkOut"){
+    if(!customerSearch.checkOut || customerSearch.checkOut <= customerSearch.checkIn){
+      customerSearch.checkOut = addDaysISO(customerSearch.checkIn, 1);
+    }
+  }
+
+  render();
 }
 function doCustomerSearch(){
   if(!validateBookingDates(customerSearch.checkIn, customerSearch.checkOut)) return;
