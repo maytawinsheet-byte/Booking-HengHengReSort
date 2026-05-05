@@ -837,10 +837,24 @@ function bindEvents(){
 }
 
 function openBooking(roomId){
-  normalizeDateRange(customerSearch);
   bookingModalRoom = state.rooms.find(r=>r.id===roomId);
   bookingStep = 1;
-  bookingForm = normalizeBookingTimes(normalizeDateRange({ checkIn:customerSearch.checkIn, checkOut:customerSearch.checkOut, checkInTime:policyCheckInTime(), checkOutTime:policyCheckOutTime(), adults:Number(customerSearch.adults||1), children:Number(customerSearch.children||0), addOns:[], slip:false, accept:false }));
+
+  const checkIn = customerSearch.checkIn || todayISO();
+  const checkOut = addDaysISO(checkIn,1);
+
+  bookingForm = normalizeBookingTimes({
+    checkIn,
+    checkOut,
+    checkInTime: policyCheckInTime(),
+    checkOutTime: policyCheckOutTime(),
+    adults: Number(customerSearch.adults||1),
+    children: Number(customerSearch.children||0),
+    addOns: [],
+    slip:false,
+    accept:false
+  });
+
   render();
 }
 function closeBooking(){ bookingModalRoom=null; render(); }
