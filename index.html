@@ -850,7 +850,33 @@ function updateBookingField(k,v){
   if(k === "checkInTime" || k === "checkOutTime") { bookingForm.checkInTime = policyCheckInTime(); bookingForm.checkOutTime = policyCheckOutTime(); render(); }
 }
 function goBookingStep2(){
-  if(!validateBookingDateTime(bookingForm.checkIn, bookingForm.checkOut, bookingForm.checkInTime, bookingForm.checkOutTime)) return;
+  if(!bookingForm.guest || !bookingForm.guest.trim()){
+    alert("กรุณากรอกชื่อ-นามสกุล");
+    return;
+  }
+
+  if(!bookingForm.phone || !bookingForm.phone.trim()){
+    alert("กรุณากรอกเบอร์โทรศัพท์");
+    return;
+  }
+
+  if(!bookingForm.checkIn){
+    alert("กรุณาเลือกวัน Check-in");
+    return;
+  }
+
+  if(!bookingForm.checkOut){
+    alert("กรุณาเลือกวัน Check-out");
+    return;
+  }
+
+  if(!validateBookingDateTime(
+    bookingForm.checkIn,
+    bookingForm.checkOut,
+    bookingForm.checkInTime,
+    bookingForm.checkOutTime
+  )) return;
+
   bookingStep = 2;
   render();
 }
