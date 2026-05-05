@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Production Resort Booking System</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root{--green:#065f46;--green2:#064e3b;--cream:#f6f4ef;--line:#e5e7eb;--text:#111827;--muted:#6b7280;--danger:#991b1b;--warn:#b45309;--ok:#047857}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--cream);color:var(--text)}
+    button,input,select,textarea{font:inherit} button{cursor:pointer;border:0}.hidden{display:none!important}
+    .hero{min-height:500px;color:#fff;position:relative;background:linear-gradient(rgba(0,0,0,.36),rgba(0,0,0,.48)),url('https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1600') center/cover}.topbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:22px}.pill{border-radius:999px;padding:9px 15px;background:rgba(255,255,255,.18);backdrop-filter:blur(12px)}.admin-btn{background:#fff;color:#111827;font-weight:800;border-radius:999px;padding:10px 18px}.hero-center{position:absolute;left:50%;bottom:140px;transform:translateX(-50%);text-align:center;width:90%}.hero-center h1{font-size:clamp(34px,6vw,60px);font-weight:300;letter-spacing:2px;margin:0}
+    .search-card{max-width:920px;margin:-85px auto 0;background:#fff;border-radius:30px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.12);position:relative;z-index:10}.tabs{display:flex;background:#efede8;padding:5px;border-radius:20px;margin-bottom:18px}.tabs button{flex:1;padding:13px;border-radius:15px;background:transparent;color:#5f646d;font-weight:800}.tabs button.active{background:var(--green);color:#fff}
+    .container{max-width:1180px;margin:0 auto;padding:44px 20px}.grid{display:grid;gap:16px}.grid-2{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-4{grid-template-columns:repeat(4,1fr)}.field{background:#f7f5f0;border-radius:18px;padding:14px;border:1px solid #eee8df}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:0;background:transparent;outline:0}.form-row{display:grid;gap:12px;margin-bottom:14px}.form-row input,.form-row select,.form-row textarea{border:1px solid #ddd;padding:13px;border-radius:16px;outline:0;width:100%;background:#fff}
+    .primary{background:var(--green);color:#fff;padding:14px 20px;border-radius:18px;font-weight:900}.secondary{background:#f1f5f3;color:#153b30;padding:12px 16px;border-radius:16px;font-weight:800}.danger{background:#fee2e2;color:var(--danger);padding:10px 14px;border-radius:14px;font-weight:800}.ghost{background:#fff;border:1px solid var(--line);padding:10px 14px;border-radius:14px;font-weight:800}.section-title{display:flex;align-items:center;gap:14px;margin-bottom:24px}.section-title span{width:5px;height:34px;background:var(--green);border-radius:99px}.section-title h2{margin:0;font-size:32px}.card,.room-card{background:#fff;border:1px solid #ece7df;border-radius:28px;overflow:hidden;box-shadow:0 8px 26px rgba(15,23,42,.04)}.room-card img{width:100%;height:240px;object-fit:cover}.room-body{padding:22px}.badge{display:inline-flex;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:900;background:#ffe4e6;color:#be123c}.muted{color:var(--muted)}.price{color:var(--green);font-weight:900;font-size:20px}.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eee}.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}.modal-box{background:#faf8f4;border-radius:28px;width:min(760px,100%);max-height:92vh;overflow:auto}.modal-head{background:#fff;padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}.modal-body{padding:22px}.close{background:#f3f4f6;width:38px;height:38px;border-radius:50%}.steps{display:flex;gap:8px;margin-bottom:20px}.steps div{height:5px;flex:1;border-radius:99px;background:#e5e7eb}.steps div.on{background:var(--green)}
+    .admin-shell{display:grid;grid-template-columns:270px 1fr;min-height:100vh}.sidebar{background:#fff;border-right:1px solid var(--line);padding:20px;position:sticky;top:0;height:100vh;overflow:auto}.brand{display:flex;gap:12px;align-items:center;margin-bottom:22px}.brand-icon{width:48px;height:48px;border-radius:18px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px}.nav button{width:100%;text-align:left;padding:13px 14px;border-radius:16px;background:transparent;color:#4b5563;font-weight:800;margin:4px 0}.nav button.active{background:var(--green);color:#fff}.admin-main{padding:24px;overflow:auto}.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.stat{background:#fff;border-radius:24px;padding:20px;border:1px solid var(--line)}.stat h3{margin:8px 0 4px;font-size:26px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:22px;overflow:hidden}th,td{padding:14px;border-bottom:1px solid #f1f1f1;text-align:left;vertical-align:top}th{background:#f9fafb;color:var(--muted);font-size:13px}.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#064e3b,#1f2937);padding:20px}.login-card{background:#fff;border-radius:32px;padding:34px;width:min(440px,100%);box-shadow:0 30px 80px rgba(0,0,0,.25)}.status-ok{color:var(--ok);font-weight:900}.status-warn{color:var(--warn);font-weight:900}.status-bad{color:var(--danger);font-weight:900}.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.calendar-day{min-height:110px;padding:8px;border-radius:12px;border:1px solid var(--line);background:#fff}.booking-chip{font-size:11px;background:#d1fae5;color:#064e3b;border-radius:999px;padding:3px 6px;margin-top:4px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.setup{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:18px;padding:14px;margin-bottom:16px}.loading{padding:40px;text-align:center;color:var(--muted)}footer{background:#111827;color:#d1d5db;padding:42px 20px;margin-top:50px}footer .footer-inner{max-width:1180px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+    @media(max-width:820px){.grid-2,.grid-3,.grid-4,footer .footer-inner{grid-template-columns:1fr}.admin-shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.calendar-grid{grid-template-columns:1fr}.admin-header{display:block}}
+  </style>
+</head>
+<body>
+<div id="app"><div class="loading">กำลังโหลดระบบ...</div></div>
+<script>
+/* ==============================
+   PRODUCTION CONFIG
+   1) วาง Apps Script Web App URL จริง
+   2) ห้ามใส่ Bot Token / LINE Token ใน HTML
+   3) Secret ทั้งหมดต้องอยู่ใน Apps Script Properties
+================================= */
+const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+let publicData = { settings:{}, rooms:[], addOns:[] };
+let adminData = null;
+let view = "customer";
+let adminTab = "dashboard";
+let adminToken = sessionStorage.getItem("adminToken") || "";
+let bookingModalRoom = null;
+let bookingStep = 1;
+let bookingForm = {};
+let chartInstance = null;
+
+function baht(n){ return "฿" + Number(n || 0).toLocaleString(); }
+function nights(a,b){ return Math.max(1, Math.round((new Date(b)-new Date(a))/(1000*60*60*24)) || 1); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function tomorrow(){ const d=new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
+function escapeHtml(s){ return String(s??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
+function hasApi(){ return API_URL && !API_URL.includes("PASTE_YOUR") && API_URL.startsWith("https://"); }
+
+async function api(action,payload={},auth=false){
+  if(!hasApi()) throw new Error("ยังไม่ได้ตั้งค่า API_URL ของ Apps Script");
+  const body = { action, payload };
+  if(auth) body.token = adminToken;
+  const res = await fetch(API_URL,{ method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body) });
+  const text = await res.text();
+  let json;
+  try{ json = JSON.parse(text); }catch(e){ throw new Error("Backend ไม่ได้ตอบกลับเป็น JSON: " + text.slice(0,160)); }
+  if(!json.success) throw new Error(json.message || "ดำเนินการไม่สำเร็จ");
+  return json;
+}
+
+async function loadPublic(){
+  try{ const r = await api("getInitialData"); publicData = r.data; render(); }
+  catch(e){ renderSetupError(e.message); }
+}
+function renderSetupError(msg){
+  document.getElementById("app").innerHTML = `<div class="container"><div class="setup"><b>ยังใช้งานจริงไม่ได้:</b> ${escapeHtml(msg)}<br>ให้ Deploy Apps Script แล้วนำ Web App URL มาใส่ที่ตัวแปร <b>API_URL</b> ในไฟล์ HTML นี้</div></div>`;
+}
+
+function render(){ document.getElementById("app").innerHTML = view==="admin" ? renderAdmin() : (view==="success" ? renderSuccess() : renderCustomer()); bind(); }
+function bind(){ document.querySelectorAll("[data-click]").forEach(el=>{ el.onclick = window[el.dataset.click]; }); }
+function setView(v){ view=v; render(); }
+function openAdmin(){ view="admin"; render(); }
+function logout(){ adminToken=""; sessionStorage.removeItem("adminToken"); adminData=null; adminTab="dashboard"; render(); }
+
+function renderCustomer(){
+  const s = publicData.settings || {};
+  const rooms = (publicData.rooms||[]).filter(r=>String(r.status||"active")==="active");
+  return `
+  <section class="hero" style="background:linear-gradient(rgba(0,0,0,.36),rgba(0,0,0,.48)),url('${escapeHtml(s.heroImage||'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1600')}') center/cover">
+    <div class="topbar"><div class="pill">${escapeHtml(s.tagline||'ค้นหาและจองที่พัก')}</div><button class="admin-btn" onclick="openAdmin()">Admin</button></div>
+    <div class="hero-center"><div style="font-size:34px;margin-bottom:14px">♡</div><h1>${escapeHtml(s.resortName||'Resort Booking')}</h1></div>
+  </section>
+  <div class="search-card">
+    <div class="tabs"><button class="active">จองห้องพักออนไลน์</button><button type="button">ชำระด้วย PromptPay</button></div>
+    <div class="grid grid-2"><div class="field"><label>Check-in</label><input id="searchCheckIn" type="date" value="${today()}"></div><div class="field"><label>Check-out</label><input id="searchCheckOut" type="date" value="${tomorrow()}"></div></div>
+    <button class="primary" style="width:100%;margin-top:14px" onclick="filterRooms()">ค้นหาห้องว่าง</button>
+  </div>
+  <main class="container">
+    <div class="section-title"><span></span><h2>ห้องพัก</h2></div>
+    <div class="grid grid-3" id="roomsGrid">
+      ${rooms.map(roomCard).join("") || `<div class="card" style="padding:24px">ยังไม่มีข้อมูลห้องพัก</div>`}
+    </div>
+  </main>
+  <footer><div class="footer-inner"><div><h3>${escapeHtml(s.resortName||'')}</h3><p>${escapeHtml(s.tagline||'')}</p></div><div><h3>ติดต่อเรา</h3><p>${escapeHtml(s.phone||'-')}<br>${escapeHtml(s.email||'-')}<br>${escapeHtml(s.line||'-')}</p></div><div><h3>ที่ตั้ง</h3><p>${escapeHtml(s.address||'-')}</p></div></div></footer>
+  ${bookingModalRoom ? renderBookingModal() : ""}`;
+}
+function roomCard(room){
+  return `<div class="room-card" data-room-type="${escapeHtml(room.type)}">
+    <div style="position:relative"><img src="${escapeHtml((room.images||[])[0]||room.image||'')}" alt="${escapeHtml(room.name)}">${Number(room.remaining)>0?`<div style="position:absolute;top:14px;left:14px" class="badge">เหลือ ${Number(room.remaining)} ห้อง</div>`:""}</div>
+    <div class="room-body"><h3>${escapeHtml(room.name)}</h3><p class="muted">พักได้ ${Number(room.capacity||1)} คน · ${escapeHtml(room.bed||'-')} · ${escapeHtml(room.size||'-')} ตร.ม.</p><p class="muted">${escapeHtml(room.facilities||'')}</p>
+    <button class="primary" style="width:100%" onclick="openBooking('${escapeHtml(room.id)}')"><small>เริ่มต้นที่</small><br>${baht(room.price)} / คืน</button></div></div>`;
+}
+function filterRooms(){
+  const ci=document.getElementById('searchCheckIn').value, co=document.getElementById('searchCheckOut').value;
+  if(!ci||!co||co<=ci) return alert('กรุณาเลือกวันที่ให้ถูกต้อง');
+  alert('เลือกห้องที่ต้องการจองได้เลย ระบบจะตรวจห้องว่างจริงตอนส่งคำขอจอง');
+}
+function openBooking(roomId){ bookingModalRoom=(publicData.rooms||[]).find(r=>String(r.id)===String(roomId)); bookingStep=1; bookingForm={checkIn:today(),checkOut:tomorrow(),adults:1,children:0,addOns:[],accept:false}; render(); }
+function closeBooking(){ bookingModalRoom=null; render(); }
+function updateBookingField(k,v){ bookingForm[k]=v; }
+function toggleBookingAddOn(id){ bookingForm.addOns=bookingForm.addOns||[]; bookingForm.addOns=bookingForm.addOns.includes(id)?bookingForm.addOns.filter(x=>x!==id):[...bookingForm.addOns,id]; render(); }
+function handleSlipFile(input){
+  const file=input.files&&input.files[0]; if(!file) return;
+  if(!file.type.startsWith('image/') && file.type!=='application/pdf') return alert('รองรับเฉพาะไฟล์รูปภาพหรือ PDF');
+  const reader=new FileReader(); reader.onload=e=>{ bookingForm.slipFileName=file.name; bookingForm.slipMimeType=file.type||'image/jpeg'; bookingForm.slipBase64=String(e.target.result||'').split(',')[1]||''; render(); }; reader.readAsDataURL(file);
+}
+function calcTotal(){ const r=bookingModalRoom; const add=(bookingForm.addOns||[]).reduce((sum,id)=>{ const a=(publicData.addOns||[]).find(x=>x.id===id); return sum+Number(a?.price||0); },0); return Number(r?.price||0)*nights(bookingForm.checkIn,bookingForm.checkOut)+add; }
+function renderBookingModal(){
+  const room=bookingModalRoom,total=calcTotal(),s=publicData.settings||{},qr=s.qrImageUrl || (s.promptPay?`https://promptpay.io/${String(s.promptPay).replace(/[^0-9]/g,'')}/${Number(total).toFixed(2)}.png`:"");
+  return `<div class="modal"><div class="modal-box"><div class="modal-head"><b>จอง ${escapeHtml(room.name)}</b><button class="close" onclick="closeBooking()">×</button></div><div class="modal-body">
+    <div class="steps"><div class="${bookingStep>=1?'on':''}"></div><div class="${bookingStep>=2?'on':''}"></div><div class="${bookingStep>=3?'on':''}"></div></div>
+    ${bookingStep===1?`<div class="grid grid-2"><div class="form-row"><label>Check-in</label><input type="date" value="${bookingForm.checkIn}" onchange="updateBookingField('checkIn',this.value)"></div><div class="form-row"><label>Check-out</label><input type="date" value="${bookingForm.checkOut}" onchange="updateBookingField('checkOut',this.value)"></div><div class="form-row"><label>ผู้ใหญ่</label><input type="number" min="1" value="${bookingForm.adults}" onchange="updateBookingField('adults',this.value)"></div><div class="form-row"><label>เด็ก</label><input type="number" min="0" value="${bookingForm.children}" onchange="updateBookingField('children',this.value)"></div></div><h3>บริการเสริม</h3>${(publicData.addOns||[]).filter(a=>String(a.active)!=='false').map(a=>`<label class="card" style="display:flex;justify-content:space-between;padding:14px;margin:8px 0"><span><input type="checkbox" ${bookingForm.addOns.includes(a.id)?'checked':''} onchange="toggleBookingAddOn('${escapeHtml(a.id)}')"> ${escapeHtml(a.name)}</span><b>${baht(a.price)} ${escapeHtml(a.unit||'')}</b></label>`).join('')}<button class="primary" style="width:100%;margin-top:12px" onclick="goBookingStep2()">ถัดไป</button>`:""}
+    ${bookingStep===2?`<div class="grid grid-2"><div class="form-row"><label>ชื่อ-นามสกุล *</label><input onchange="updateBookingField('guest',this.value)" value="${escapeHtml(bookingForm.guest||'')}"></div><div class="form-row"><label>เบอร์โทร *</label><input onchange="updateBookingField('phone',this.value)" value="${escapeHtml(bookingForm.phone||'')}"></div><div class="form-row"><label>อีเมล</label><input onchange="updateBookingField('email',this.value)" value="${escapeHtml(bookingForm.email||'')}"></div><div class="form-row"><label>LINE ID</label><input onchange="updateBookingField('lineId',this.value)" value="${escapeHtml(bookingForm.lineId||'')}"></div></div><div class="form-row"><label>หมายเหตุ</label><textarea onchange="updateBookingField('note',this.value)">${escapeHtml(bookingForm.note||'')}</textarea></div><button class="secondary" onclick="bookingStep=1;render()">ย้อนกลับ</button> <button class="primary" onclick="goBookingStep3()">ถัดไปชำระเงิน</button>`:""}
+    ${bookingStep===3?`<div class="grid grid-2"><div class="card" style="padding:20px"><h3>สรุปยอด</h3><div class="row"><span>ห้อง</span><b>${escapeHtml(room.name)}</b></div><div class="row"><span>จำนวนคืน</span><b>${nights(bookingForm.checkIn,bookingForm.checkOut)}</b></div><div class="row"><span>ยอดรวม</span><b class="price">${baht(total)}</b></div><p class="muted">${escapeHtml(s.bankName||'')}<br>${escapeHtml(s.bankAccountName||'')}<br>${escapeHtml(s.bankAccountNo||'')}</p></div><div class="card" style="padding:20px;text-align:center"><h3>PromptPay QR</h3>${qr?`<img src="${escapeHtml(qr)}" style="width:220px;height:220px;object-fit:contain;background:#f3f4f6;border-radius:20px;padding:12px">`:`<p class="status-bad">ยังไม่ได้ตั้งค่า PromptPay/QR</p>`}<p class="muted">PromptPay: ${escapeHtml(s.promptPay||'-')}</p></div></div><div class="form-row" style="margin-top:14px"><label>แนบหลักฐานการชำระเงิน *</label><input type="file" accept="image/*,application/pdf" onchange="handleSlipFile(this)">${bookingForm.slipFileName?`<p class="status-ok">แนบแล้ว: ${escapeHtml(bookingForm.slipFileName)}</p>`:''}</div><button class="secondary" onclick="bookingStep=2;render()">ย้อนกลับ</button> <button class="primary" onclick="submitBooking()">ยืนยันการจองจริง</button>`:""}
+  </div></div></div>`;
+}
+function goBookingStep2(){ if(!bookingForm.checkIn||!bookingForm.checkOut||bookingForm.checkOut<=bookingForm.checkIn) return alert('กรุณาเลือกวันที่ให้ถูกต้อง'); bookingStep=2; render(); }
+function goBookingStep3(){ if(!bookingForm.guest||!bookingForm.phone) return alert('กรุณากรอกชื่อและเบอร์โทร'); bookingStep=3; render(); }
+async function submitBooking(){
+  if(!bookingForm.slipBase64) return alert('กรุณาแนบหลักฐานการชำระเงินก่อนยืนยัน');
+  const room=bookingModalRoom,total=calcTotal();
+  const booking={ guest:bookingForm.guest, phone:bookingForm.phone, email:bookingForm.email||'', lineId:bookingForm.lineId||'', roomId:room.id, room:room.name, roomType:room.type, checkIn:bookingForm.checkIn, checkOut:bookingForm.checkOut, adults:Number(bookingForm.adults||1), children:Number(bookingForm.children||0), addOns:bookingForm.addOns||[], total, status:'Pending', channel:'Website', note:bookingForm.note||'', slipFileName:bookingForm.slipFileName, slipMimeType:bookingForm.slipMimeType, slipBase64:bookingForm.slipBase64 };
+  try{ const r=await api('createBooking',booking); publicData.lastSuccess=r.booking; bookingModalRoom=null; view='success'; await loadPublic(); }
+  catch(e){ alert(e.message); }
+}
+function renderSuccess(){ const b=publicData.lastSuccess; if(!b){ view='customer'; return renderCustomer(); } return `<div style="min-height:100vh;background:linear-gradient(135deg,#f6f4ef,#ecfdf5);display:flex;align-items:center;justify-content:center;padding:24px"><div class="card" style="width:min(760px,100%);padding:34px;text-align:center"><div style="font-size:52px;color:#047857">✓</div><h1>ส่งข้อมูลการจองสำเร็จ</h1><p class="muted">ระบบบันทึกลง Google Sheet และแจ้งเตือนแอดมินแล้ว กรุณารอการยืนยันจากที่พัก</p><h2 style="color:#065f46">${escapeHtml(b.id)}</h2><div class="row"><span>ลูกค้า</span><b>${escapeHtml(b.guest)}</b></div><div class="row"><span>ห้องพัก</span><b>${escapeHtml(b.room)}</b></div><div class="row"><span>วันที่</span><b>${escapeHtml(b.checkIn)} → ${escapeHtml(b.checkOut)}</b></div><div class="row"><span>ยอดรวม</span><b class="price">${baht(b.total)}</b></div><button class="primary" style="margin-top:20px" onclick="view='customer';loadPublic()">กลับหน้าแรก</button></div></div>`; }
+
+function renderAdmin(){ if(!adminToken) return renderLogin(); if(!adminData) { loadAdmin(); return `<div class="loading">กำลังโหลดหลังบ้าน...</div>`; } return `<div class="admin-shell"><aside class="sidebar"><div class="brand"><div class="brand-icon">🏨</div><div><b>${escapeHtml(publicData.settings?.resortName||'Admin')}</b><div class="muted">Production</div></div></div><div class="nav">${[['dashboard','Dashboard'],['bookings','Bookings'],['calendar','Calendar'],['rooms','Rooms'],['addons','Add-ons'],['settings','Settings'],['reports','Reports']].map(x=>`<button class="${adminTab===x[0]?'active':''}" onclick="adminTab='${x[0]}';render()">${x[1]}</button>`).join('')}<button onclick="logout()">Logout</button></div></aside><main class="admin-main"><div class="admin-header"><h1>${adminTab}</h1><button class="secondary" onclick="loadAdmin()">Reload</button></div>${renderAdminTab()}</main></div>`; }
+function renderLogin(){ return `<div class="login-page"><div class="login-card"><h1>Admin Login</h1><div class="form-row"><label>Username</label><input id="loginUser"></div><div class="form-row"><label>Password</label><input id="loginPass" type="password"></div><button class="primary" style="width:100%" onclick="adminLogin()">เข้าสู่ระบบ</button></div></div>`; }
+async function adminLogin(){ try{ const r=await api('adminLogin',{username:document.getElementById('loginUser').value,password:document.getElementById('loginPass').value}); adminToken=r.token; sessionStorage.setItem('adminToken',adminToken); await loadAdmin(); }catch(e){ alert(e.message); } }
+async function loadAdmin(){ try{ const r=await api('getAdminData',{},true); adminData=r.data; publicData={...publicData,...r.publicData}; render(); setTimeout(drawChart,50); }catch(e){ logout(); alert(e.message); } }
+function renderAdminTab(){ return ({dashboard:renderDashboard,bookings:renderBookings,calendar:renderCalendar,rooms:renderRooms,addons:renderAddOns,settings:renderSettings,reports:renderReports}[adminTab]||renderDashboard)(); }
+function stats(){ const b=adminData.bookings||[]; return { total:b.length, pending:b.filter(x=>x.status==='Pending').length, confirmed:b.filter(x=>x.status==='Confirmed').length, revenue:b.filter(x=>x.status!=='Cancelled').reduce((s,x)=>s+Number(x.total||0),0) }; }
+function renderDashboard(){ const s=stats(); return `<div class="grid grid-4"><div class="stat">ทั้งหมด<h3>${s.total}</h3></div><div class="stat">รอยืนยัน<h3>${s.pending}</h3></div><div class="stat">ยืนยันแล้ว<h3>${s.confirmed}</h3></div><div class="stat">ยอดรวม<h3>${baht(s.revenue)}</h3></div></div><div class="card" style="padding:20px;margin-top:20px"><canvas id="bookingChart" height="100"></canvas></div>`; }
+function drawChart(){ const el=document.getElementById('bookingChart'); if(!el||!adminData) return; if(chartInstance) chartInstance.destroy(); const grouped={}; (adminData.bookings||[]).forEach(b=>{grouped[b.status]=(grouped[b.status]||0)+1}); chartInstance=new Chart(el,{type:'bar',data:{labels:Object.keys(grouped),datasets:[{label:'Bookings',data:Object.values(grouped)}]}}); }
+function renderBookings(){ const b=adminData.bookings||[]; return `<table><thead><tr><th>ID</th><th>ลูกค้า</th><th>ห้อง</th><th>วันที่</th><th>ยอด</th><th>สลิป</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody>${b.map(x=>`<tr><td>${escapeHtml(x.id)}</td><td>${escapeHtml(x.guest)}<br><span class="muted">${escapeHtml(x.phone)}</span></td><td>${escapeHtml(x.room)}</td><td>${escapeHtml(x.checkIn)}<br>${escapeHtml(x.checkOut)}</td><td>${baht(x.total)}</td><td>${x.slipUrl?`<a href="${escapeHtml(x.slipUrl)}" target="_blank">เปิดสลิป</a>`:'-'}</td><td><b>${escapeHtml(x.status)}</b></td><td><select onchange="updateBookingStatus('${escapeHtml(x.id)}',this.value)"><option>เปลี่ยนสถานะ</option>${['Pending','Confirmed','Cancelled','Check-in','Check-out'].map(st=>`<option value="${st}">${st}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table>`; }
+async function updateBookingStatus(id,status){ if(status==='เปลี่ยนสถานะ') return; try{ await api('updateBookingStatus',{id,status},true); await loadAdmin(); }catch(e){ alert(e.message); } }
+function renderCalendar(){ const b=adminData.bookings||[], now=new Date(), y=now.getFullYear(), m=now.getMonth(); const first=new Date(y,m,1), last=new Date(y,m+1,0); let html='<div class="calendar-grid">'; for(let d=1;d<=last.getDate();d++){ const date=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const items=b.filter(x=>x.checkIn<=date && x.checkOut>date && x.status!=='Cancelled'); html+=`<div class="calendar-day"><b>${d}</b>${items.map(x=>`<span class="booking-chip">${escapeHtml(x.room)} · ${escapeHtml(x.guest)}</span>`).join('')}</div>`; } return html+'</div>'; }
+function renderRooms(){ return `<div style="margin-bottom:12px"><button class="primary" onclick="editRoom('')">+ เพิ่มห้อง</button></div><table><thead><tr><th>ชื่อ</th><th>ประเภท</th><th>ราคา</th><th>จำนวน</th><th>สถานะ</th><th></th></tr></thead><tbody>${(adminData.rooms||[]).map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.type)}</td><td>${baht(r.price)}</td><td>${escapeHtml(r.remaining)}</td><td>${escapeHtml(r.status)}</td><td><button class="secondary" onclick="editRoom('${escapeHtml(r.id)}')">แก้ไข</button></td></tr>`).join('')}</tbody></table>`; }
+function editRoom(id){ const r=(adminData.rooms||[]).find(x=>x.id===id)||{id:'',name:'',type:'',price:0,remaining:1,capacity:2,status:'active',images:['']}; const name=prompt('ชื่อห้อง',r.name); if(name===null)return; const price=prompt('ราคา/คืน',r.price); if(price===null)return; api('saveRoom',{...r,name,price:Number(price)},true).then(loadAdmin).catch(e=>alert(e.message)); }
+function renderAddOns(){ return `<table><thead><tr><th>ชื่อ</th><th>ราคา</th><th>หน่วย</th><th>เปิดใช้</th></tr></thead><tbody>${(adminData.addOns||[]).map(a=>`<tr><td>${escapeHtml(a.name)}</td><td>${baht(a.price)}</td><td>${escapeHtml(a.unit)}</td><td>${String(a.active)}</td></tr>`).join('')}</tbody></table>`; }
+function renderSettings(){ const s=publicData.settings||{}; return `<div class="card" style="padding:20px"><div class="grid grid-2">${['resortName','tagline','phone','email','line','address','promptPay','bankName','bankAccountName','bankAccountNo','qrImageUrl','heroImage'].map(k=>`<div class="form-row"><label>${k}</label><input id="set_${k}" value="${escapeHtml(s[k]||'')}"></div>`).join('')}</div><button class="primary" onclick="saveSettings()">บันทึก Settings</button></div>`; }
+async function saveSettings(){ const data={}; ['resortName','tagline','phone','email','line','address','promptPay','bankName','bankAccountName','bankAccountNo','qrImageUrl','heroImage'].forEach(k=>data[k]=document.getElementById('set_'+k).value); try{ await api('saveSettings',data,true); await loadAdmin(); }catch(e){ alert(e.message); } }
+function renderReports(){ return `<div class="card" style="padding:20px"><button class="primary" onclick="exportExcel()">Export Excel</button><button class="secondary" style="margin-left:10px" onclick="window.print()">Print / Save PDF</button></div>`; }
+function exportExcel(){ const ws=XLSX.utils.json_to_sheet(adminData.bookings||[]); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Bookings'); XLSX.writeFile(wb,'bookings-report.xlsx'); }
+
+loadPublic();
+</script>
+</body>
+</html>
