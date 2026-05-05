@@ -1058,13 +1058,15 @@ function renderBookingModal(){
           <div class="steps">${[1,2,3].map(s=>`<div class="${s<=bookingStep?'on':''}"></div>`).join("")}</div>
           ${bookingStep===1 ? `
             <div class="grid grid-2">
-              <div class="form-row"><label>ชื่อ-นามสกุล</label><input onchange="updateBookingField('guest',this.value)"></div>
-              <div class="form-row"><label>เบอร์โทรศัพท์</label><input onchange="updateBookingField('phone',this.value)"></div>
-              <div class="form-row"><label>อีเมล</label><input onchange="updateBookingField('email',this.value)"></div>
-              <div class="form-row"><label>LINE ID</label><input onchange="updateBookingField('lineId',this.value)"></div>
-              <div class="form-row"><label>Check-in</label><input type="date" min="${todayISO()}" value="${bookingForm.checkIn}" onchange="updateBookingField('checkIn',this.value)"></div>
-              <div class="form-row"><label>Check-out</label><input type="date" min="${addDaysISO(bookingForm.checkIn,1)}" value="${bookingForm.checkOut}" onchange="updateBookingField('checkOut',this.value)"></div>
-              <div style="grid-column:1/-1">${policyTimeHtml()}</div>
+              <div class="form-row"><label>ชื่อ-นามสกุล</label><input value="${bookingForm.guest || ''}" oninput="updateBookingField('guest',this.value)"></div>
+<div class="form-row"><label>เบอร์โทรศัพท์</label><input value="${bookingForm.phone || ''}" oninput="updateBookingField('phone',this.value)"></div>
+<div class="form-row"><label>อีเมล</label><input value="${bookingForm.email || ''}" oninput="updateBookingField('email',this.value)"></div>
+<div class="form-row"><label>LINE ID</label><input value="${bookingForm.lineId || ''}" oninput="updateBookingField('lineId',this.value)"></div>
+
+<div class="form-row"><label>Check-in</label><input type="date" min="${todayISO()}" value="${bookingForm.checkIn || ''}" onchange="updateBookingField('checkIn',this.value)"></div>
+<div class="form-row"><label>Check-out</label><input type="date" min="${addDaysISO(bookingForm.checkIn,1)}" value="${bookingForm.checkOut || ''}" onchange="updateBookingField('checkOut',this.value)"></div>
+
+<div style="grid-column:1/-1">${policyTimeHtml()}</div>
             </div>
             <button class="primary" style="width:100%" onclick="goBookingStep2()">ถัดไป</button>
           ` : ""}
