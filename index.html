@@ -870,28 +870,6 @@ function openBooking(roomId){
 }
 function closeBooking(){ bookingModalRoom=null; render(); }
 function updateBookingField(k,v){
-  bookingForm[k] = v;
-
-  if(k === "checkIn"){
-    bookingForm.checkOut = addDaysISO(bookingForm.checkIn, 1);
-    render();
-    return;
-  }
-
-  if(k === "checkOut"){
-    if(!bookingForm.checkOut || bookingForm.checkOut <= bookingForm.checkIn){
-      bookingForm.checkOut = addDaysISO(bookingForm.checkIn, 1);
-    }
-    render();
-    return;
-  }
-
-  if(k === "checkInTime" || k === "checkOutTime"){
-    bookingForm.checkInTime = policyCheckInTime();
-    bookingForm.checkOutTime = policyCheckOutTime();
-    render();
-  }
-}
 function goBookingStep2(){
   if(!bookingForm.guest || !bookingForm.guest.trim()){
     alert("กรุณากรอกชื่อ-นามสกุล");
