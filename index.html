@@ -2549,7 +2549,7 @@ function renderCustomer(){
   const activeRooms = state.rooms.filter(roomMatchesSearch);
   const sectionHtml = {
     hero: `
-      <section class="hero" style="background:linear-gradient(rgba(0,0,0,.32),rgba(0,0,0,.45)), url('${s.heroImage}') center/cover">
+     <section class="hero" style="background:linear-gradient(rgba(0,0,0,.32),rgba(0,0,0,.45)), url('${s.heroImage}') center/cover">
         <div class="topbar"><div class="pill">${s.tagline}</div>${topRightActions()}</div>
         <div class="hero-center">${logoMarkup()}<h1>${s.resortName}</h1></div>
       </section>
@@ -2558,7 +2558,7 @@ function renderCustomer(){
           <button class="${customerSearchMode==='date'?'active':''}" onclick="setCustomerSearchMode('date')">${uiLabel('dateSearch')}</button>
           <button class="${customerSearchMode==='room'?'active':''}" onclick="setCustomerSearchMode('room')">${uiLabel('roomSearch')}</button>
         </div>
-        ${customerSearchMode==='date' ? `<div class="grid grid-2"><div class="field"><label>${uiLabel('checkIn')}</label><input type="date" value="${customerSearch.checkIn}" onchange="updateSearchField('checkIn',this.value)"></div><div class="field"><label>${uiLabel('checkOut')}</label><input type="date" value="${customerSearch.checkOut}" onchange="updateSearchField('checkOut',this.value)"></div></div>` : `<div class="field"><label>${uiLabel('roomType')}</label><select onchange="updateSearchField('roomType',this.value)"><option value="">${uiLabel('allRooms')}</option>${roomTypes.map(t=>`<option value="${t}" ${customerSearch.roomType===t?'selected':''}>${t}</option>`).join('')}</select></div>`}
+        ${customerSearchMode==='date' ? `<div class="grid grid-2"><div class="field"><label>${uiLabel('checkIn')}</label><input type="date" min="${todayISO()}" value="${customerSearch.checkIn}" onchange="updateSearchField('checkIn',this.value)"></div><div class="field"><label>${uiLabel('checkOut')}</label><input type="date" min="${addDaysISO(customerSearch.checkIn,1)}" value="${customerSearch.checkOut}" onchange="updateSearchField('checkOut',this.value)"></div></div>` : `<div class="field"><label>${uiLabel('roomType')}</label><select onchange="updateSearchField('roomType',this.value)"><option value="">${uiLabel('allRooms')}</option>${roomTypes.map(t=>`<option value="${t}" ${customerSearch.roomType===t?'selected':''}>${t}</option>`).join('')}</select></div>`}
         <div class="field" style="margin:14px 0"><label>${uiLabel('guests')}</label><div class="grid grid-2"><div><small>${uiLabel('adults')}</small><input type="number" min="1" value="${customerSearch.adults}" onchange="updateSearchField('adults',this.value)"></div><div><small>${uiLabel('children')}</small><input type="number" min="0" value="${customerSearch.children}" onchange="updateSearchField('children',this.value)"></div></div></div>
         <button class="primary" style="width:100%" onclick="doCustomerSearch()">${uiLabel('search')}</button>
       </div>`,
