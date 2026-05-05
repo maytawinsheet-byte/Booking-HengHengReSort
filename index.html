@@ -2192,22 +2192,30 @@ function getLayoutSections(){
   try{
     const parsed = JSON.parse(state.settings.customerLayoutSections || "[]");
     const source = Array.isArray(parsed) && parsed.length ? parsed : structuredClone(DEFAULT_LAYOUT_SECTIONS);
-    return source.map((sec,i)=>({
-      id: sec.id || ("custom_" + Date.now() + "_" + i),
-      type: sec.type || sec.id || "custom",
-      enabled: sec.enabled !== false,
-      order: Number(sec.order || i + 1),
-      layout: sec.layout || "default",
-      titleTh: sec.titleTh || sectionDefaultTitle(sec.type || sec.id || "custom", "th"),
-      titleEn: sec.titleEn || sectionDefaultTitle(sec.type || sec.id || "custom", "en"),
-      contentTh: sec.contentTh || "",
-      contentEn: sec.contentEn || "",
-      imageUrl: sec.imageUrl || "",
-      buttonTextTh: sec.buttonTextTh || "",
-      buttonTextEn: sec.buttonTextEn || "",
-      buttonUrl: sec.buttonUrl || ""
-    })).sort((a,b)=>Number(a.order)-Number(b.order));
-  }catch(e){ return structuredClone(DEFAULT_LAYOUT_SECTIONS); }
+
+    return source.map((sec,i)=>{
+      const rawType = sec.type || sec.id || "custom";
+      const normalizedType = rawType === "system" ? (sec.id || "custom") : rawType;
+
+      return {
+        id: sec.id || ("custom_" + Date.now() + "_" + i),
+        type: normalizedType,
+        enabled: sec.enabled !== false,
+        order: Number(sec.order || i + 1),
+        layout: sec.layout || "default",
+        titleTh: sec.titleTh || sec.titleTH || sectionDefaultTitle(normalizedType, "th"),
+        titleEn: sec.titleEn || sec.titleEN || sectionDefaultTitle(normalizedType, "en"),
+        contentTh: sec.contentTh || sec.contentTH || "",
+        contentEn: sec.contentEn || sec.contentEN || "",
+        imageUrl: sec.imageUrl || "",
+        buttonTextTh: sec.buttonTextTh || sec.buttonTextTH || "",
+        buttonTextEn: sec.buttonTextEn || sec.buttonTextEN || "",
+        buttonUrl: sec.buttonUrl || ""
+      };
+    }).sort((a,b)=>Number(a.order)-Number(b.order));
+  }catch(e){
+    return structuredClone(DEFAULT_LAYOUT_SECTIONS);
+  }
 }
 
 function saveLayoutSections(sections){
